@@ -31,10 +31,10 @@ const Filter = ({persons, filterPattern}) => {
   )
 }
 
-const Contacts = ({persons}) => {
+const Contacts = ({persons, handleDelete}) => {
   return(
     <div>
-      {persons.map(person => <p key={person.name}> {person.name} {person.phoneNumb} </p>)}
+      {persons.map(person => <p key={person.name}> {person.name} {person.phoneNumb} <button onClick={() => handleDelete(person.id)}> delete </button> </p>)}
     </div>
   )
 }
@@ -69,7 +69,7 @@ const App = () => {
     let contact_counter = persons.length + 1
     if(persons.find(person => person.name === newName) === undefined)
     {
-      if(contact_counter != 1)
+      if(contact_counter !== 1)
       {
         contact_counter += 1
       }
@@ -96,6 +96,21 @@ const App = () => {
 
     setNewName("")
     setNewPhoneNumb("")
+  }
+
+  const removeContact = (id) => {
+    if(window.confirm('Do you really want to delete this contact?'))
+    {
+      contactService
+      .remove(id)
+      .then(status_code => {
+        console.log(`successfully deleted person #${id}`)
+        setPersons(persons.filter(p => p.id !== id))
+      })
+      .catch(error => {
+        console.log(`couldn't delete person #${id}`)
+      })   
+    }
   }
 
   const handlePhoneNumbChange = (event) => {
@@ -130,7 +145,7 @@ const App = () => {
       <PersonForm handleSubmit={addContact} input1_info={input1_details} input2_info={input2_details} button_info={{type: "submit", text: "add"}}/>
 
       <h2>Numbers</h2>
-      <Contacts persons={persons}/>
+      <Contacts persons={persons} handleDelete={removeContact}/>
     </div>
   )
 }
