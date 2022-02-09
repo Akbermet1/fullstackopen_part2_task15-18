@@ -32,6 +32,7 @@ const Filter = ({persons, filterPattern}) => {
 }
 
 const Contacts = ({persons, handleDelete}) => {
+  console.log(persons[4])
   return(
     <div>
       {persons.map(person => <p key={person.name}> {person.name} {person.phoneNumb} <button onClick={() => handleDelete(person.id)}> delete </button> </p>)}
@@ -91,7 +92,20 @@ const App = () => {
     }
     else
     {
-      alert(`${newName} is already added to the phonebook`)
+      if(window.confirm(`${newName} is already added to the phonebook, replace the old number with a new one?`))
+      {
+        const contact = persons.find(person => person.name === newName)
+        // console.log(contact.name)
+        contact['phoneNumb'] = newPhoneNumb
+        contactService
+          .update(contact.id, contact)
+          .then(response => {
+            setPersons(persons.map(person => person.id !== contact.id ? person : response.data))
+          })
+          .catch(error => {
+            console.log('error happened when updating the number', error)
+          })
+      }
     }
 
     setNewName("")
@@ -139,7 +153,7 @@ const App = () => {
     <div>
       <h2>Phonebook</h2>
       <div>filter shown with: <input type="text" value={filterPattern} onChange={handleFilterChange} /></div>
-      <Filter persons={persons} filterPattern={filterPattern} />
+      {/* <Filter persons={persons} filterPattern={filterPattern} /> */}
 
       <h2> Add a new </h2>
       <PersonForm handleSubmit={addContact} input1_info={input1_details} input2_info={input2_details} button_info={{type: "submit", text: "add"}}/>

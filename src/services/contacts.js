@@ -14,5 +14,10 @@ const remove = (id) => {
     return axios.delete(`${baseUrl}/${id}`)
 }
 
-const exportedObject = {create, remove}
+const update = (id, newContact) => {
+    const request = axios.put(`${baseUrl}/${id}`, newContact)
+    return request.then(response => response.data)
+}
+
+const exportedObject = {create, remove, update}
 export default exportedObject
