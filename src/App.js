@@ -1,44 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import contactService from './services/contacts'
-
-const PersonForm = ({handleSubmit, input1_info, input2_info, button_info}) => {
-
-  return(
-    <form onSubmit={handleSubmit}>
-      <div> {input1_info.text} <input value={input1_info.state} onChange={input1_info.eventHandler} /></div>
-      <div> {input2_info.text} <input value={input2_info.state} onChange={input2_info.eventHandler}/></div>
-      <div> <button type={button_info.type}> {button_info.text} </button> </div>
-    </form>
-  )
-}
-
-const Filter = ({persons, filterPattern}) => {
-  const filtering = (contact) => {
-    const contactName = contact.name.toLowerCase()
-  
-    if(contactName.indexOf(filterPattern.toLowerCase()) !== -1 && filterPattern !== "")
-    {
-      return true
-    }
-  }
-
-  const filteredContactList = persons.filter(filtering)
-  console.log("filtered: ", filteredContactList)
-
-  return(
-    <Contacts persons={filteredContactList}/>
-  )
-}
-
-const Contacts = ({persons, handleDelete}) => {
-  console.log(persons[4])
-  return(
-    <div>
-      {persons.map(person => <p key={person.name}> {person.name} {person.phoneNumb} <button onClick={() => handleDelete(person.id)}> delete </button> </p>)}
-    </div>
-  )
-}
+import Contacts from './components/contacts'
+import PersonForm from './components/personForm'
+import Filter from './components/filter'
 
 const App = () => {
   const [persons, setPersons ] = useState([]) 
@@ -95,12 +60,12 @@ const App = () => {
       if(window.confirm(`${newName} is already added to the phonebook, replace the old number with a new one?`))
       {
         const contact = persons.find(person => person.name === newName)
-        // console.log(contact.name)
         contact['phoneNumb'] = newPhoneNumb
         contactService
           .update(contact.id, contact)
           .then(response => {
-            setPersons(persons.map(person => person.id !== contact.id ? person : response.data))
+            console.log("axios' response", response)
+            setPersons(persons.map(person => person.id !== contact.id ? person : response))
           })
           .catch(error => {
             console.log('error happened when updating the number', error)
@@ -153,7 +118,7 @@ const App = () => {
     <div>
       <h2>Phonebook</h2>
       <div>filter shown with: <input type="text" value={filterPattern} onChange={handleFilterChange} /></div>
-      {/* <Filter persons={persons} filterPattern={filterPattern} /> */}
+      <Filter persons={persons} filterPattern={filterPattern} handleDelete={removeContact}/>
 
       <h2> Add a new </h2>
       <PersonForm handleSubmit={addContact} input1_info={input1_details} input2_info={input2_details} button_info={{type: "submit", text: "add"}}/>
