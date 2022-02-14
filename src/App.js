@@ -11,8 +11,8 @@ const App = () => {
   const [newName, setNewName ] = useState('')
   const [newPhoneNumb, setNewPhoneNumb ] = useState('')
   const [filterPattern, setFilterPattern ] = useState('')
-  const [notificationMessage, setNotificationMessage] = useState(null)
-
+  const [notificationMessage, setNotificationMessage ] = useState(null)
+  const [notificationColorState, setNotificationColorState ] = useState(null)
 
   useEffect(() => {
     console.log('effect')
@@ -55,10 +55,12 @@ const App = () => {
         .then(returnedContact => {
           console.log(`response data: ${returnedContact}`)
           setPersons(persons.concat(returnedContact))
+          setNotificationColorState('green')
           setNotificationMessage(`Added ${nameObject.name} to phonebook`)
+
           setTimeout(() => {
             setNotificationMessage(null)
-          }, 4000)
+          }, 6000)
         })
     }
     else
@@ -72,10 +74,12 @@ const App = () => {
           .then(response => {
             console.log("axios' response", response)
             setPersons(persons.map(person => person.id !== contact.id ? person : response))
+            setNotificationColorState('green')
             setNotificationMessage(`Added ${contact.name} to phonebook`)
+
             setTimeout(() => {
               setNotificationMessage(null)
-            }, 4000)
+            }, 6000)
           })
           .catch(error => {
             console.log('error happened when updating the number', error)
@@ -90,14 +94,29 @@ const App = () => {
   const removeContact = (id) => {
     if(window.confirm('Do you really want to delete this contact?'))
     {
+      // const removedPersonsName = axios.get(`http://localhost:3001/persons/${id}`).then(response => response.data)
+      let removedPersonsName =
+      axios
+        .get(`http://localhost:3001/persons/2`)
+        .then(response => response.data)
+
+      console.log('deleting:', removedPersonsName)
       contactService
       .remove(id)
       .then(status_code => {
-        console.log(`successfully deleted person #${id}`)
+        console.log(`successfully deleted person #${id}, status code: ${status_code}`)
         setPersons(persons.filter(p => p.id !== id))
       })
       .catch(error => {
-        console.log(`couldn't delete person #${id}`)
+       removedPersonsName = 'someone'
+        console.log(`couldn't delete person #${id}, his name: ${removedPersonsName}`)
+        setNotificationMessage(`Information of ${removedPersonsName} has already been removed from the server`)
+        setNotificationColorState('red')
+        setPersons(persons.filter(p => p.id !== id))
+
+        setTimeout(() => {
+          setNotificationMessage(null)
+        }, 9000)
       })   
     }
   }
@@ -127,7 +146,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={notificationMessage} />
+      <Notification message={notificationMessage} notificationColor={notificationColorState}/>
       <div>filter shown with: <input type="text" value={filterPattern} onChange={handleFilterChange} /></div>
       <Filter persons={persons} filterPattern={filterPattern} handleDelete={removeContact}/>
 

@@ -1,13 +1,16 @@
 import React from 'react'
 
-const Notification = ({message}) => {
+// a notification can be of types: success or fail
+const Notification = ({message, notificationColor}) => {
     if (message === null) {
         return null
     }
 
+    notificationColor = notificationColor == null ? 'black': notificationColor
+
     const notificationStyles = 
     {
-        color: 'green',
+        color: notificationColor,
         background: 'lightgrey',
         fontSize: 20,
         borderStyle: 'solid',
