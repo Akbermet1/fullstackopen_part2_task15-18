@@ -4,12 +4,14 @@ import contactService from './services/contacts'
 import Contacts from './components/contacts'
 import PersonForm from './components/personForm'
 import Filter from './components/filter'
+import Notification from './components/Notification'
 
 const App = () => {
   const [persons, setPersons ] = useState([]) 
   const [newName, setNewName ] = useState('')
   const [newPhoneNumb, setNewPhoneNumb ] = useState('')
   const [filterPattern, setFilterPattern ] = useState('')
+  const [notificationMessage, setNotificationMessage] = useState(null)
 
 
   useEffect(() => {
@@ -53,6 +55,10 @@ const App = () => {
         .then(returnedContact => {
           console.log(`response data: ${returnedContact}`)
           setPersons(persons.concat(returnedContact))
+          setNotificationMessage(`Added ${nameObject.name} to phonebook`)
+          setTimeout(() => {
+            setNotificationMessage(null)
+          }, 4000)
         })
     }
     else
@@ -66,6 +72,10 @@ const App = () => {
           .then(response => {
             console.log("axios' response", response)
             setPersons(persons.map(person => person.id !== contact.id ? person : response))
+            setNotificationMessage(`Added ${contact.name} to phonebook`)
+            setTimeout(() => {
+              setNotificationMessage(null)
+            }, 4000)
           })
           .catch(error => {
             console.log('error happened when updating the number', error)
@@ -117,6 +127,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={notificationMessage} />
       <div>filter shown with: <input type="text" value={filterPattern} onChange={handleFilterChange} /></div>
       <Filter persons={persons} filterPattern={filterPattern} handleDelete={removeContact}/>
 
